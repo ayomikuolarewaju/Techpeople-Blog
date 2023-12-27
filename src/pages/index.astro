@@ -1,0 +1,51 @@
+---
+
+import MainLayout from '../layouts/MainLayout.astro';
+import SearchForm from "../components/SearchForm.astro";
+import { HOME_ARTICLE_LIMIT } from "../constants";
+
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import ArticleCard from "../components/ArticleCard.astro";
+import MostCard from "../components/MostCard.astro"
+
+
+
+
+const allblogs:CollectionEntry<'blog'>[] = (await getCollection('blog') )
+.sort((a:CollectionEntry<'blog'>,b:CollectionEntry<'blog'>)=>b.data.pubDate.valueOf()-a.data.pubDate.valueOf())
+
+const mostRecent:CollectionEntry<'blog'> = allblogs[0]
+const olderBlog:CollectionEntry<'blog'>[] = allblogs.slice(1)
+
+
+
+
+---
+
+<MainLayout>
+
+   
+      <!-- Top Grid -->
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <div>
+          <h1 class="text-5xl font-bold mt-4 mb-8 leading-tight xl:text-6xl">
+            Articles, Stories & Tutorials for Tech People
+          </h1>
+
+          <SearchForm/>
+        </div>
+        <!-- Most Recent Article -->
+        <MostCard article={mostRecent}/>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {olderBlog.slice(0,HOME_ARTICLE_LIMIT).map(article=>(
+          <ArticleCard article={article}/>
+        ))}
+      </div>
+    </div>
+   
+  </MainLayout>
+    

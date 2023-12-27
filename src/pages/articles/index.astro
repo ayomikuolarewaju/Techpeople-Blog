@@ -1,0 +1,40 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import Pagination from "../../components/Pagination.astro"
+import {formatDate} from '../../utils'
+import {ARTICLE_PER_PAGE} from '../../constants'
+import ArticleCard from '../../components/ArticleCard.astro'
+import SearchForm from "../../components/SearchForm.astro";
+const allblogs:CollectionEntry<'blog'>[] = (await getCollection('blog') )
+.sort((a:CollectionEntry<'blog'>,b:CollectionEntry<'blog'>)=>b.data.pubDate.valueOf()-a.data.pubDate.valueOf())
+
+const currentpage:number | null = +Astro.url.searchParams.get('page')! || 1
+
+const totalpage:number = Math.ceil(allblogs.length/ARTICLE_PER_PAGE)
+
+const articlesforpage:CollectionEntry<'blog'>[] = allblogs.slice((currentpage-1)*ARTICLE_PER_PAGE,currentpage*ARTICLE_PER_PAGE)
+
+---
+
+<MainLayout title = 'Articles from the techpeople blog'>
+
+    <h1 class="text-2xl pb-3">All Articles</h1>
+
+    <div> <SearchForm/></div>
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {articlesforpage.map(article=>(
+        <ArticleCard article={article}/>
+      ))}
+    </div>
+
+    <Pagination
+      currentpage={currentpage} 
+      totalpages={totalpage}
+      disableprevious = {currentpage === 1}
+      disablenext = {currentpage === totalpage}
+     />
+
+</MainLayout>
